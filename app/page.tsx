@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
+import { translations } from '../lib/i18n'
 
 // Custom Cursor Component
 function CustomCursor() {
@@ -320,6 +321,9 @@ const pricingPlans = [
 ]
 
 export default function Page() {
+  const [lang, setLang] = useState<'es' | 'en'>('es')
+  const t = translations[lang]
+
   const [isLoading, setIsLoading] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -348,10 +352,10 @@ export default function Page() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setActiveTestimonial(prev => (prev + 1) % testimonials.length)
+      setActiveTestimonial(prev => (prev + 1) % t.testimonials.length)
     }, 5000)
     return () => clearInterval(timer)
-  }, [])
+  }, [t.testimonials.length])
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -430,23 +434,44 @@ export default function Page() {
           </a>
           
           <div className="hidden md:flex items-center gap-8">
-            {['Servicios', 'Galeria', 'Precios', 'Contacto'].map((item) => (
+            {[
+              { label: t.nav.services, id: 'servicios' },
+              { label: t.nav.gallery, id: 'galeria' },
+              { label: t.nav.packages, id: 'paquetes' },
+              { label: t.nav.contact, id: 'contacto' }
+            ].map((item) => (
               <a 
-                key={item}
-                href={`#${item.toLowerCase()}`} 
+                key={item.id}
+                href={`#${item.id}`} 
                 className="text-sm text-muted-foreground hover:text-accent transition-colors relative group interactive"
               >
-                {item}
+                {item.label}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
+            
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 backdrop-blur-md">
+              <button 
+                onClick={() => setLang('es')}
+                className={`text-xs font-semibold px-2 py-1 rounded-full transition-colors ${lang === 'es' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-white'}`}
+              >
+                ES
+              </button>
+              <button 
+                onClick={() => setLang('en')}
+                className={`text-xs font-semibold px-2 py-1 rounded-full transition-colors ${lang === 'en' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-white'}`}
+              >
+                EN
+              </button>
+            </div>
+
             <motion.a 
               href="#contacto"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="btn-primary px-6 py-2.5 rounded-full text-sm interactive"
+              className="btn-primary px-6 py-2.5 rounded-full text-sm interactive whitespace-nowrap"
             >
-              Reservar Ahora
+              {t.nav.book}
             </motion.a>
           </div>
 
@@ -478,19 +503,46 @@ export default function Page() {
               className="md:hidden glass-dark overflow-hidden"
             >
               <div className="px-6 py-8 flex flex-col gap-6">
-                {['Servicios', 'Galeria', 'Precios', 'Contacto'].map((item, i) => (
+                {[
+                  { label: t.nav.services, id: 'servicios' },
+                  { label: t.nav.gallery, id: 'galeria' },
+                  { label: t.nav.packages, id: 'paquetes' },
+                  { label: t.nav.contact, id: 'contacto' }
+                ].map((item, i) => (
                   <motion.a 
-                    key={item}
-                    href={`#${item.toLowerCase()}`}
+                    key={item.id}
+                    href={`#${item.id}`}
                     onClick={() => setMenuOpen(false)}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.1 }}
-                    className="text-2xl font-serif interactive"
+                    className="text-2xl font-serif interactive block"
                   >
-                    {item}
+                    {item.label}
                   </motion.a>
                 ))}
+
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="flex items-center gap-4 mt-4"
+                >
+                  <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5">
+                    <button 
+                      onClick={() => setLang('es')}
+                      className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-colors ${lang === 'es' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-white'}`}
+                    >
+                      ESPAÑOL
+                    </button>
+                    <button 
+                      onClick={() => setLang('en')}
+                      className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-colors ${lang === 'en' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-white'}`}
+                    >
+                      ENGLISH
+                    </button>
+                  </div>
+                </motion.div>
               </div>
             </motion.div>
           )}
@@ -532,11 +584,11 @@ export default function Page() {
               />
               
               <h1 className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl leading-none tracking-tight mb-4">
-                <AnimatedText text="TU AUTO." delay={0.8} />
+                <AnimatedText text={t.heroMain.line1} delay={0.8} />
               </h1>
               <h1 className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl leading-none tracking-tight mb-8">
                 <span className="gradient-text text-glow">
-                  <AnimatedText text="PERFECTO." delay={1.2} />
+                  <AnimatedText text={t.heroMain.line2} delay={1.2} />
                 </span>
               </h1>
               
@@ -546,7 +598,7 @@ export default function Page() {
                 transition={{ duration: 0.8, delay: 1.8 }}
                 className="text-lg md:text-xl text-muted-foreground max-w-xl mb-10 leading-relaxed"
               >
-                Detallado profesional que transforma, protege y hace brillar cada vehiculo.
+                {t.heroMain.desc}
               </motion.p>
               
               <motion.div 
@@ -561,7 +613,7 @@ export default function Page() {
                   whileTap={{ scale: 0.97 }}
                   className="btn-primary px-8 py-4 rounded-full font-semibold text-center interactive"
                 >
-                  RESERVA TU CITA AHORA
+                  {t.heroMain.btn1}
                 </motion.a>
                 <motion.a 
                   href="#galeria"
@@ -569,7 +621,7 @@ export default function Page() {
                   whileTap={{ scale: 0.97 }}
                   className="glass px-8 py-4 rounded-full font-medium text-center hover:bg-card-hover transition-colors interactive"
                 >
-                  Ver Galeria de Trabajos
+                  {t.heroMain.btn2}
                 </motion.a>
               </motion.div>
             </div>
@@ -597,19 +649,15 @@ export default function Page() {
         <div className="absolute inset-0 shimmer opacity-50" />
         <div className="max-w-7xl mx-auto px-6 relative">
           <AnimatedSection className="text-center mb-16">
-            <span className="text-accent text-sm tracking-[0.4em] block mb-4">POR QUE ELEGIRNOS</span>
+            <span className="text-accent text-sm tracking-[0.4em] block mb-4">{t.valueProposition.subtitle}</span>
             <h2 className="font-display text-4xl md:text-6xl tracking-tight">
-              Porque cada detalle<br />
-              <span className="gradient-text text-glow">marca la diferencia</span>
+              {t.valueProposition.titleLine1}<br />
+              <span className="gradient-text text-glow">{t.valueProposition.titleLine2}</span>
             </h2>
           </AnimatedSection>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { title: 'Resultados Extremos', desc: 'Transformacion visible desde el primer vistazo', icon: '01' },
-              { title: 'Proteccion Duradera', desc: 'Productos premium que protegen por meses', icon: '02' },
-              { title: 'Servicio Profesional', desc: 'Atencion meticulosa y puntualidad garantizada', icon: '03' },
-            ].map((item, i) => (
+            {t.valueProposition.items.map((item, i) => (
               <AnimatedSection key={i} delay={i * 0.15}>
                 <motion.div 
                   whileHover={{ y: -10, scale: 1.02 }}
@@ -634,15 +682,15 @@ export default function Page() {
         
         <div className="max-w-7xl mx-auto px-6 relative">
           <AnimatedSection className="mb-16">
-            <span className="text-accent text-sm tracking-[0.4em] block mb-4">SERVICIOS</span>
+            <span className="text-accent text-sm tracking-[0.4em] block mb-4">{t.servicesHead.subtitle}</span>
             <h2 className="font-display text-4xl md:text-6xl tracking-tight">
-              Nuestros Servicios<br />
-              <span className="gradient-text text-glow">de Detailing</span>
+              {t.servicesHead.titleLine1}<br />
+              <span className="gradient-text text-glow">{t.servicesHead.titleLine2}</span>
             </h2>
           </AnimatedSection>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, i) => (
+            {t.services.map((service, i) => (
               <AnimatedSection key={i} delay={i * 0.1}>
                 <motion.div 
                   whileHover={{ y: -8 }}
@@ -665,7 +713,7 @@ export default function Page() {
                   </ul>
                   <div className="mt-6 pt-4 border-t border-border">
                     <a href="#contacto" className="text-accent text-sm font-medium flex items-center gap-2 group-hover:gap-3 transition-all">
-                      Reservar ahora
+                      {t.servicesHead.bookNow}
                       <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M3 8h10M9 4l4 4-4 4" />
                       </svg>
@@ -686,19 +734,19 @@ export default function Page() {
 
         <div className="max-w-7xl mx-auto px-6 relative">
           <AnimatedSection className="text-center mb-16">
-            <span className="text-accent text-sm tracking-[0.4em] block mb-4">TESTIMONIOS</span>
+            <span className="text-accent text-sm tracking-[0.4em] block mb-4">{t.testimonialHead.subtitle}</span>
             <h2 className="font-display text-4xl md:text-6xl tracking-tight">
-              Lo que dicen<br />
-              <span className="gradient-text text-glow">nuestros clientes</span>
+              {t.testimonialHead.titleLine1}<br />
+              <span className="gradient-text text-glow">{t.testimonialHead.titleLine2}</span>
             </h2>
           </AnimatedSection>
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-8 mb-20">
             {[
-              { value: 500, suffix: '+', label: 'Autos Transformados' },
-              { value: 98, suffix: '%', label: 'Satisfaccion' },
-              { value: 5, suffix: '★', label: 'Calificacion' },
+              { value: 500, suffix: t.stats[0].suffix, label: t.stats[0].label },
+              { value: 98, suffix: t.stats[1].suffix, label: t.stats[1].label },
+              { value: 5, suffix: t.stats[2].suffix, label: t.stats[2].label },
             ].map((stat, i) => (
               <AnimatedSection key={i} delay={i * 0.1} className="text-center">
                 <div className="text-4xl md:text-6xl font-display gradient-text text-glow">
@@ -721,31 +769,31 @@ export default function Page() {
                 className="glass rounded-3xl p-8 md:p-12 text-center"
               >
                 <div className="flex justify-center mb-4">
-                  {[...Array(testimonials[activeTestimonial].rating)].map((_, i) => (
+                  {[...Array(t.testimonials[activeTestimonial].rating)].map((_, i) => (
                     <svg key={i} className="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   ))}
                 </div>
                 <p className="text-xl md:text-2xl font-light italic mb-8 leading-relaxed">
-                  &ldquo;{testimonials[activeTestimonial].text}&rdquo;
+                  &ldquo;{t.testimonials[activeTestimonial].text}&rdquo;
                 </p>
                 <div className="flex items-center justify-center gap-4">
                   <Image 
-                    src={testimonials[activeTestimonial].image} 
-                    alt={testimonials[activeTestimonial].name}
+                    src={t.testimonials[activeTestimonial].image} 
+                    alt={t.testimonials[activeTestimonial].name}
                     width={56}
                     height={56}
                     className="rounded-full object-cover"
                   />
-                  <span className="font-semibold">{testimonials[activeTestimonial].name}</span>
+                  <span className="font-semibold">{t.testimonials[activeTestimonial].name}</span>
                 </div>
               </motion.div>
             </AnimatePresence>
 
             {/* Dots */}
             <div className="flex justify-center gap-2 mt-8">
-              {testimonials.map((_, i) => (
+              {t.testimonials.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveTestimonial(i)}
@@ -763,13 +811,13 @@ export default function Page() {
       <section id="galeria" className="py-24 bg-muted relative">
         <div className="max-w-7xl mx-auto px-6">
           <AnimatedSection className="text-center mb-16">
-            <span className="text-accent text-sm tracking-[0.4em] block mb-4">GALERIA</span>
+            <span className="text-accent text-sm tracking-[0.4em] block mb-4">{t.gallery.subtitle}</span>
             <h2 className="font-display text-4xl md:text-6xl tracking-tight">
-              Resultados Reales<br />
-              <span className="gradient-text text-glow">Sin Filtros</span>
+              {t.gallery.titleLine1}<br />
+              <span className="gradient-text text-glow">{t.gallery.titleLine2}</span>
             </h2>
             <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
-              Conoce la calidad de nuestros terminados premium
+              {t.gallery.desc}
             </p>
           </AnimatedSection>
 
@@ -808,10 +856,10 @@ export default function Page() {
       <section className="py-24 bg-background relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <AnimatedSection className="text-center mb-16">
-            <span className="text-accent text-sm tracking-[0.4em] block mb-4">NUESTRO TRABAJO</span>
+            <span className="text-accent text-sm tracking-[0.4em] block mb-4">{t.videos.subtitle}</span>
             <h2 className="font-display text-4xl md:text-6xl tracking-tight">
-              Calidad en<br />
-              <span className="gradient-text text-glow">Acción</span>
+              {t.videos.titleLine1}<br />
+              <span className="gradient-text text-glow">{t.videos.titleLine2}</span>
             </h2>
           </AnimatedSection>
 
@@ -855,7 +903,7 @@ export default function Page() {
             <button 
               onClick={() => scrollVideos('left')}
               className="w-12 h-12 rounded-full glass border border-white/10 flex items-center justify-center hover:bg-card-hover interactive text-accent shadow-lg"
-              aria-label="Anterior"
+              aria-label={t.videos.prev}
             >
               <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                 <path d="M15 18l-6-6 6-6" />
@@ -864,7 +912,7 @@ export default function Page() {
             <button 
               onClick={() => scrollVideos('right')}
               className="w-12 h-12 rounded-full glass border border-white/10 flex items-center justify-center hover:bg-card-hover interactive text-accent shadow-lg"
-              aria-label="Siguiente"
+              aria-label={t.videos.next}
             >
               <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                 <path d="M9 18l6-6-6-6" />
@@ -878,10 +926,10 @@ export default function Page() {
       <section className="py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <AnimatedSection className="text-center mb-20">
-            <span className="text-accent text-sm tracking-[0.4em] block mb-4">PROCESO</span>
+            <span className="text-accent text-sm tracking-[0.4em] block mb-4">{t.process.subtitle}</span>
             <h2 className="font-display text-4xl md:text-6xl tracking-tight">
-              Proceso Simple<br />
-              <span className="gradient-text text-glow">y Efectivo</span>
+              {t.process.titleLine1}<br />
+              <span className="gradient-text text-glow">{t.process.titleLine2}</span>
             </h2>
           </AnimatedSection>
 
@@ -889,11 +937,7 @@ export default function Page() {
             {/* Connection line */}
             <div className="hidden md:block absolute top-24 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
             
-            {[
-              { num: '01', title: 'Agenda Tu Cita', desc: 'Selecciona servicio y horario que mejor te convenga', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
-              { num: '02', title: 'Transformacion', desc: 'Detallado profesional completo de tu vehiculo', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
-              { num: '03', title: 'Recibe Perfecto', desc: 'Entrega con reporte fotografico incluido', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
-            ].map((step, i) => (
+            {t.process.steps.map((step, i) => (
               <AnimatedSection key={i} delay={i * 0.2} className="text-center relative">
                 <motion.div 
                   whileHover={{ scale: 1.05, rotate: 3 }}
@@ -913,18 +957,18 @@ export default function Page() {
       </section>
 
       {/* PRICING */}
-      <section id="precios" className="py-24 bg-muted relative">
+      <section id="paquetes" className="py-24 bg-muted relative">
         <div className="max-w-7xl mx-auto px-6">
           <AnimatedSection className="text-center mb-16">
-            <span className="text-accent text-sm tracking-[0.4em] block mb-4">PRECIOS</span>
+            <span className="text-accent text-sm tracking-[0.4em] block mb-4">{t.packagesHead.subtitle}</span>
             <h2 className="font-display text-4xl md:text-6xl tracking-tight">
-              Inversion Clara<br />
-              <span className="gradient-text text-glow">Resultados Garantizados</span>
+              {t.packagesHead.titleLine1}<br />
+              <span className="gradient-text text-glow">{t.packagesHead.titleLine2}</span>
             </h2>
           </AnimatedSection>
 
           <div className="grid md:grid-cols-3 gap-6 items-stretch">
-            {pricingPlans.map((plan, i) => (
+            {t.packages.map((plan, i) => (
               <AnimatedSection key={i} delay={i * 0.15}>
                 <motion.div 
                   whileHover={{ y: -10 }}
@@ -967,7 +1011,7 @@ export default function Page() {
                       plan.popular ? 'btn-primary' : 'glass hover:bg-card-hover'
                     }`}
                   >
-                    Elegir Plan
+                    {plan.btn}
                   </motion.a>
                 </motion.div>
               </AnimatedSection>
@@ -993,18 +1037,18 @@ export default function Page() {
 
         <div className="max-w-4xl mx-auto px-6 relative text-center">
           <AnimatedSection>
-            <span className="text-accent text-sm tracking-[0.4em] block mb-4">OFERTA ESPECIAL</span>
+            <span className="text-accent text-sm tracking-[0.4em] block mb-4">{t.cta.subtitle}</span>
             <h2 className="font-display text-4xl md:text-6xl lg:text-7xl tracking-tight mb-6">
-              Listo Para Ver<br />
-              <span className="gradient-text text-glow">Tu Auto Brillar?</span>
+              {t.cta.titleLine1}<br />
+              <span className="gradient-text text-glow">{t.cta.titleLine2}</span>
             </h2>
             <p className="text-xl text-muted-foreground mb-4">
-              Agenda hoy y recibe
+              {t.cta.text1}
             </p>
             <div className="text-5xl md:text-7xl font-display gradient-text text-glow mb-8">
-              15% DESCUENTO
+              {t.cta.discount}
             </div>
-            <p className="text-muted-foreground mb-10">en tu primer servicio</p>
+            <p className="text-muted-foreground mb-10">{t.cta.text2}</p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <motion.a 
@@ -1016,7 +1060,7 @@ export default function Page() {
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                 </svg>
-                RESERVAR AHORA - OFERTA LIMITADA
+                {t.cta.btn}
               </motion.a>
             </div>
           </AnimatedSection>
@@ -1038,35 +1082,35 @@ export default function Page() {
                 />
               </div>
               <p className="text-muted-foreground mt-4 max-w-sm leading-relaxed">
-                Transformamos tu vehiculo con pasion, precision y los mejores productos del mercado.
+                {t.footer.desc}
               </p>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Servicios</h4>
+              <h4 className="font-semibold mb-4">{t.footer.servicesLabel}</h4>
               <ul className="space-y-2 text-muted-foreground">
-                {services.slice(0, 4).map((s, i) => (
+                {t.services.slice(0, 4).map((s, i) => (
                   <li key={i}><a href="#servicios" className="hover:text-accent transition-colors interactive">{s.name}</a></li>
                 ))}
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Contacto</h4>
+              <h4 className="font-semibold mb-4">{t.footer.contactLabel}</h4>
               <ul className="space-y-2 text-muted-foreground">
                 <li>
                   Tel: <a href="https://wa.me/17409720931" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors interactive">740-972-0931</a>
                 </li>
-                <li>Lun - Sab: 8am - 6pm</li>
+                <li>{t.footer.days}: 8am - 6pm</li>
               </ul>
             </div>
           </div>
           
           <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>2026 GUZMAN AUTODETAILING. Todos los derechos reservados.</p>
+            <p>2026 {t.footer.rights}</p>
             <div className="flex gap-6">
-              <a href="#" className="hover:text-accent transition-colors interactive">Privacidad</a>
-              <a href="#" className="hover:text-accent transition-colors interactive">Terminos</a>
+              <a href="#" className="hover:text-accent transition-colors interactive">{t.footer.privacy}</a>
+              <a href="#" className="hover:text-accent transition-colors interactive">{t.footer.terms}</a>
             </div>
           </div>
         </div>
